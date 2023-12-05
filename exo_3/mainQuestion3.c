@@ -6,16 +6,20 @@ void mainQuestion3()
 
     struct chainedItem* myChainedList = createChainedListFirstIntegers(5);
 
+    printf("Size of the chainedList : %i\n", getSizeChainedList(myChainedList));
     displayChainedList(myChainedList);
     printf("-------------------------------\n");
 
     pop_front(myChainedList);
+    printf("Size of the chainedList : %i\n", getSizeChainedList(myChainedList));
     displayChainedList(myChainedList);
     printf("-------------------------------\n");
     pop_back(myChainedList);
+    printf("Size of the chainedList : %i\n", getSizeChainedList(myChainedList));
     displayChainedList(myChainedList);
     printf("-------------------------------\n");
     push_back(myChainedList, 8);
+    printf("Size of the chainedList : %i\n", getSizeChainedList(myChainedList));
     displayChainedList(myChainedList);
     printf("-------------------------------\n");
 }

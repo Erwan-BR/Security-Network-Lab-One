@@ -13,6 +13,7 @@ struct chainedItem
 
 struct chainedItem* createNewChainedItem(int data);
 struct chainedItem* createChainedListFirstIntegers(int number);
+int getSizeChainedList(struct chainedItem* chainedList);
 void displayChainedList(struct chainedItem* chainedList);
 void pop_front(struct chainedItem* chainedList);
 void pop_back(struct chainedItem* chainedList);

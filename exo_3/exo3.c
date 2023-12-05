@@ -36,6 +36,25 @@ struct chainedItem* createChainedListFirstIntegers(int number)
     return headOfChainedList;
 }
 
+int getSizeChainedList(struct chainedItem* chainedList)
+{
+    int sizeOfChainedList = 0;
+    if (NULL == chainedList)
+    {
+        return sizeOfChainedList;
+    }
+
+    struct chainedItem* currentElementFromList = chainedList;
+    do
+    {
+        sizeOfChainedList++;
+
+        currentElementFromList = currentElementFromList->addressNextValue;
+    } while(NULL != currentElementFromList);
+
+    return sizeOfChainedList;
+}
+
 void displayChainedList(struct chainedItem* chainedList)
 {
     if (NULL == chainedList)
