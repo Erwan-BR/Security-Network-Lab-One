@@ -7,6 +7,7 @@ void mainQuestion2()
     // ./ Because this function is called from main.
     const char inputDirectory[] = "./textFiles/input_exo_2.txt";
 
+    // 2. Open the file
     int openFile = open(inputDirectory, O_RDWR);
     if (-1 == openFile)
     {
@@ -24,7 +25,7 @@ void mainQuestion2()
     }
     printf("Size of file: %ld bytes.\n", statsOfFile.st_size);
 
-    // 3. Mapping the file
+    // 3. Mapping the file into memory
     char* mappedData = mmap(NULL, statsOfFile.st_size, PROT_READ | PROT_WRITE, MAP_PRIVATE, openFile, 0);
 
     // 4. Inverse bytes of the file in memory.
