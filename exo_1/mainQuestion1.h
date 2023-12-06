@@ -4,6 +4,8 @@
 #include "./exo1.h"
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <sys/mman.h>
 
 void mainQuestion1();
 
