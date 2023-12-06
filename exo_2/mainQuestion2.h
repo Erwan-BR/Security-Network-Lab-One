@@ -1,8 +1,6 @@
 #ifndef mainQuestion2_h
 #define mainQuestion2_h
 
-#include "./exo2.h"
-
 #include <stdio.h>
 #include <unistd.h>
 #include <fcntl.h>

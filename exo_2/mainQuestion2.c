@@ -2,7 +2,7 @@
 
 void mainQuestion2()
 {
-    printf("Inversion of a file.\n");
+    printf("Inversion of a file containing \"Hello World!\".\n");
 
     // ./ Because this function is called from main.
     const char inputDirectory[] = "./textFiles/input_exo_2.txt";
@@ -10,7 +10,7 @@ void mainQuestion2()
     int openFile = open(inputDirectory, O_RDWR);
     if (-1 == openFile)
     {
-        printf("Error opening the file.\n");
+        perror("ERROR on open");
         return ;
     }
     struct stat statsOfFile;
@@ -19,7 +19,7 @@ void mainQuestion2()
     int fileStats = fstat(openFile, &statsOfFile);
     if (-1 == fileStats)
     {
-        printf("Error retrieving stats of the file.\n");
+        perror("ERROR on fstat");
         return ;
     }
     printf("Size of file: %ld bytes.\n", statsOfFile.st_size);
