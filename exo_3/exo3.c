@@ -14,6 +14,7 @@ struct chainedItem* createNewChainedItem(int data)
     return newChainedItem;
 }
 
+// Ameliorer en faisant des appels a push_back / push_front
 struct chainedItem* createChainedListFirstIntegers(int number)
 {
     if (0 >= number)
@@ -33,6 +34,9 @@ struct chainedItem* createChainedListFirstIntegers(int number)
         currentElementFromChainedList->addressPreviousValue = previousElementFromChainedList;
     }
 
+    currentElementFromChainedList->addressNextValue = headOfChainedList;
+    headOfChainedList->addressPreviousValue = currentElementFromChainedList;
+
     return headOfChainedList;
 }
 
@@ -44,13 +48,15 @@ int getSizeChainedList(struct chainedItem* chainedList)
         return sizeOfChainedList;
     }
 
+    const struct chainedItem* headAddress = chainedList;
+
     struct chainedItem* currentElementFromList = chainedList;
     do
     {
         sizeOfChainedList++;
 
         currentElementFromList = currentElementFromList->addressNextValue;
-    } while(NULL != currentElementFromList);
+    } while((NULL != currentElementFromList) && (headAddress != currentElementFromList));
 
     return sizeOfChainedList;
 }
@@ -61,18 +67,23 @@ void displayChainedList(struct chainedItem* chainedList)
     {
         return ;
     }
+
+    const struct chainedItem* headAddress = chainedList;
+
     struct chainedItem* currentElementFromList = chainedList;
     do
     {
         printf("Adress of the previous element: %p\t", currentElementFromList->addressPreviousValue);
         printf("Adress of the current element: %p\t", currentElementFromList);
         printf("Adress of the next element: %p\t", currentElementFromList->addressNextValue);
-        printf("Value of the current Item :%i\n", currentElementFromList->currentValue);
+        printf("Value of the current item :%i\n", currentElementFromList->currentValue);
 
         currentElementFromList = currentElementFromList->addressNextValue;
-    } while(NULL != currentElementFromList);
+    } while((NULL != currentElementFromList) && (headAddress != currentElementFromList));
 }
 
+// Changer pour un pointeur de pointeur pour changer la valeur du premier
+// Debut d'essai dans pop_front_2
 void pop_front(struct chainedItem* chainedList)
 {
     if (NULL == chainedList)
@@ -82,19 +93,43 @@ void pop_front(struct chainedItem* chainedList)
     if (NULL == chainedList->addressNextValue)
     {
         chainedList = NULL;
+        return ;
     }
+
+    const struct chainedItem* tailAddress = chainedList->addressPreviousValue->addressPreviousValue;
+    const struct chainedItem* headAddress = chainedList;
+
     struct chainedItem* currentElementFromList = chainedList;
+
     do
     {
         currentElementFromList->currentValue = currentElementFromList->addressNextValue->currentValue;
 
         currentElementFromList = currentElementFromList->addressNextValue;
-    } while(NULL != currentElementFromList->addressNextValue);
+    } while((NULL != currentElementFromList->addressNextValue) && (headAddress != currentElementFromList->addressNextValue));
 
-    currentElementFromList->addressPreviousValue->addressNextValue = NULL;
+    currentElementFromList->addressPreviousValue->addressNextValue = (struct chainedItem*) headAddress;
+    chainedList->addressPreviousValue = (struct chainedItem*) tailAddress;
     free(currentElementFromList);
 }
 
+void pop_front_2(struct chainedItem** chainedList)
+{
+    if (NULL == chainedList)
+    {
+        return ;
+    }
+    if (NULL == (*chainedList)->addressNextValue)
+    {
+        chainedList = NULL;
+        return ;
+    }
+
+    (*chainedList)->addressPreviousValue->addressNextValue = (*chainedList)->addressNextValue;
+    (*chainedList)->addressNextValue->addressPreviousValue = (*chainedList)->addressPreviousValue;
+}
+
+//A Ameliorer car comme c'est criculaire, pas besoin de tour reboucler.
 void pop_back(struct chainedItem* chainedList)
 {
     if (NULL == chainedList)
@@ -106,16 +141,22 @@ void pop_back(struct chainedItem* chainedList)
         chainedList = NULL;
     }
 
+    const struct chainedItem* newTailAddress = chainedList->addressPreviousValue->addressPreviousValue;
+    const struct chainedItem* headAddress = chainedList;
+
     struct chainedItem* currentElementFromList = chainedList;
+
     do
     {
         currentElementFromList = currentElementFromList->addressNextValue;
-    } while(NULL != currentElementFromList->addressNextValue);
+    } while((NULL != currentElementFromList->addressNextValue) && (headAddress != currentElementFromList->addressNextValue));
 
-    currentElementFromList->addressPreviousValue->addressNextValue = NULL;
+    currentElementFromList->addressPreviousValue->addressNextValue = (struct chainedItem*) headAddress;
+    chainedList->addressPreviousValue = (struct chainedItem*) newTailAddress;
     free(currentElementFromList);
 }
 
+//A Ameliorer car comme c'est criculaire, pas besoin de tour reboucler.
 void push_back(struct chainedItem* chainedList, int value)
 {
     struct chainedItem* newItem = createNewChainedItem(value);
@@ -131,18 +172,23 @@ void push_back(struct chainedItem* chainedList, int value)
         return ;
     }
 
+    const struct chainedItem* headAddress = chainedList;
+
     struct chainedItem* currentElementFromList = chainedList;
 
     do
     {
         currentElementFromList = currentElementFromList->addressNextValue;
-    } while(NULL != currentElementFromList->addressNextValue);
+    } while((NULL != currentElementFromList->addressNextValue) && (headAddress != currentElementFromList->addressNextValue));
 
     currentElementFromList->addressNextValue = newItem;
 
     currentElementFromList->addressNextValue->addressPreviousValue = currentElementFromList;
+    currentElementFromList->addressNextValue->addressNextValue = (struct chainedItem*) headAddress;
+    chainedList->addressPreviousValue = newItem;
 }
 
+//A changer avec un pointeur de pointeur.
 void push_front(struct chainedItem* chainedList, int value)
 {
     if (NULL == chainedList)
@@ -154,6 +200,8 @@ void push_front(struct chainedItem* chainedList, int value)
     int oldCurrentValue ;
     int newValueToReplace = value;
 
+    const struct chainedItem* headAddress = chainedList;
+
     struct chainedItem* currentElementFromList = chainedList;
 
     do
@@ -162,12 +210,15 @@ void push_front(struct chainedItem* chainedList, int value)
         currentElementFromList->currentValue = newValueToReplace;
         newValueToReplace = oldCurrentValue;
         currentElementFromList = currentElementFromList->addressNextValue;
-    } while (NULL != currentElementFromList->addressNextValue);
+    } while ((NULL != currentElementFromList->addressNextValue) && (headAddress != currentElementFromList->addressNextValue));
 
     oldCurrentValue = currentElementFromList->currentValue;
     currentElementFromList->currentValue = newValueToReplace;
     currentElementFromList->addressNextValue = createNewChainedItem(oldCurrentValue);
     currentElementFromList->addressNextValue->addressPreviousValue = currentElementFromList;
+
+    chainedList->addressPreviousValue = currentElementFromList->addressNextValue;
+    currentElementFromList->addressNextValue->addressNextValue = (struct chainedItem*) headAddress;
 }
 
 void concatenateTwoChainedLists(struct chainedItem* fistChainedList, struct chainedItem* secondChainedList)
@@ -177,12 +228,21 @@ void concatenateTwoChainedLists(struct chainedItem* fistChainedList, struct chai
         fistChainedList = secondChainedList;
         return ;
     }
-    struct chainedItem* currentElementFromList = fistChainedList;
-    while(NULL != currentElementFromList->addressNextValue)
+    if (NULL == secondChainedList)
     {
-        currentElementFromList = currentElementFromList->addressNextValue;
+        return ;
     }
-    currentElementFromList->addressNextValue = secondChainedList;
+    
+
+    const struct chainedItem* headAddressFirstChainedList = fistChainedList;
+    const struct chainedItem* tailAddressFirstChainedList = fistChainedList->addressPreviousValue;
+    const struct chainedItem* headAddressSecondChainedList = secondChainedList;
+    const struct chainedItem* tailAddressSecondChainedList = secondChainedList->addressPreviousValue;
+
+    fistChainedList->addressPreviousValue->addressNextValue = (struct chainedItem*)headAddressSecondChainedList;
+    fistChainedList->addressPreviousValue = (struct chainedItem*)tailAddressSecondChainedList;
+    secondChainedList->addressPreviousValue->addressNextValue = (struct chainedItem*)headAddressFirstChainedList;
+    secondChainedList->addressPreviousValue = (struct chainedItem*)tailAddressFirstChainedList;
 }
 
 void applyFunctionToAllElements(struct chainedItem* chainedList, int (*function_callback)(int))
@@ -191,12 +251,15 @@ void applyFunctionToAllElements(struct chainedItem* chainedList, int (*function_
     {
         return ;
     }
+
+    const struct chainedItem* headAddress = chainedList;
+
     struct chainedItem* currentElementFromList = chainedList;
     do
     {
         currentElementFromList->currentValue = function_callback(currentElementFromList->currentValue);
         currentElementFromList = currentElementFromList->addressNextValue;
-    } while (NULL != currentElementFromList);
+    } while ((NULL != currentElementFromList) && (headAddress != currentElementFromList));
 }
 
 int squareAValue(int inputValue)
