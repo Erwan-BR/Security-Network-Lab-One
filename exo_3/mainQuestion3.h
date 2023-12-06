@@ -4,6 +4,7 @@
 #include "./exo3.h"
 
 #include <stdio.h>
+#include <assert.h>
 
 void mainQuestion3();
 

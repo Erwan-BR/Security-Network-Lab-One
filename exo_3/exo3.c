@@ -143,3 +143,45 @@ void push_back(struct chainedItem* chainedList, int value)
 
     currentElementFromList->addressNextValue->addressPreviousValue = currentElementFromList;
 }
+
+void push_front(struct chainedItem* chainedList, int value)
+{
+    struct chainedItem* newItem = createNewChainedItem(value);
+    if (NULL == chainedList)
+    {
+        chainedList = createNewChainedItem(value);
+        return ;
+    }
+
+    int oldCurrentValue = chainedList->currentValue;
+
+    /*if (NULL == chainedList->addressNextValue)
+    {*/
+        chainedList->currentValue = value;
+        chainedList->addressNextValue = createNewChainedItem(oldCurrentValue);
+        chainedList->addressNextValue->addressPreviousValue = chainedList->addressNextValue;
+        //return ;
+    //}
+
+    struct chainedItem* currentElementFromList = chainedList;
+
+    do
+    {
+        chainedList->currentValue = value;
+        currentElementFromList = currentElementFromList->addressNextValue;
+    } while(NULL != currentElementFromList->addressNextValue);
+
+    currentElementFromList->addressNextValue = newItem;
+
+    currentElementFromList->addressNextValue->addressPreviousValue = currentElementFromList;
+}
+
+void concatenateTwoChainedLists(struct chainedItem* fistChainedList, struct chainedItem* secondChainedList)
+{
+    return;
+}
+
+void applyFunctionToAllElements(struct chainedItem* fistChainedList, int (*function_callback)(int))
+{
+    return;
+}
