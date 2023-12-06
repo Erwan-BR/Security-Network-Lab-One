@@ -1,5 +1,8 @@
 #include "./exo3.h"
 
+/// @brief Create a single element from a circular chained list. By default, previous and next adresses are the adress of this element.
+/// @param data Value to write in the element of the chained list.
+/// @return Item containing the value, and that can be added to a circular chained list.
 struct chainedItem* createNewChainedItem(int data)
 {
     struct chainedItem* newChainedItem = (struct chainedItem*)malloc(sizeof(struct chainedItem));
@@ -9,12 +12,14 @@ struct chainedItem* createNewChainedItem(int data)
         exit(1);
     }
     newChainedItem->currentValue = data;
-    newChainedItem->addressPreviousValue = NULL;
-    newChainedItem->addressNextValue = NULL;
+    newChainedItem->addressPreviousValue = newChainedItem;
+    newChainedItem->addressNextValue = newChainedItem;
     return newChainedItem;
 }
 
-// Ameliorer en faisant des appels a push_back / push_front
+/// @brief Create a circular chained List of numbers from 0 to number-1.
+/// @param number Number of element in the chained list. If number <=0, the output is NULL.
+/// @return Created chainedItem.
 struct chainedItem* createChainedListFirstIntegers(int number)
 {
     if (0 >= number)
@@ -23,23 +28,17 @@ struct chainedItem* createChainedListFirstIntegers(int number)
     }
     
     struct chainedItem* headOfChainedList = createNewChainedItem(0);
-    struct chainedItem* currentElementFromChainedList = headOfChainedList;
-    struct chainedItem* previousElementFromChainedList = headOfChainedList;
 
     for (int value = 1; number > value; value++)
     {
-        previousElementFromChainedList = currentElementFromChainedList;
-        currentElementFromChainedList->addressNextValue = createNewChainedItem(value);
-        currentElementFromChainedList = currentElementFromChainedList->addressNextValue;
-        currentElementFromChainedList->addressPreviousValue = previousElementFromChainedList;
+        push_back(&headOfChainedList, value);
     }
-
-    currentElementFromChainedList->addressNextValue = headOfChainedList;
-    headOfChainedList->addressPreviousValue = currentElementFromChainedList;
-
     return headOfChainedList;
 }
 
+/// @brief Get the size of a circular chained list.
+/// @param chainedList Circular chained list of which we want the size.
+/// @return Size of the given chained list.
 int getSizeChainedList(struct chainedItem* chainedList)
 {
     int sizeOfChainedList = 0;
@@ -56,11 +55,13 @@ int getSizeChainedList(struct chainedItem* chainedList)
         sizeOfChainedList++;
 
         currentElementFromList = currentElementFromList->addressNextValue;
-    } while((NULL != currentElementFromList) && (headAddress != currentElementFromList));
+    } while(headAddress != currentElementFromList);
 
     return sizeOfChainedList;
 }
 
+/// @brief Display a circular chained list in the terminal. If the list is empty, nothing is displayed.
+/// @param chainedList Circular chained list to display.
 void displayChainedList(struct chainedItem* chainedList)
 {
     if (NULL == chainedList)
@@ -79,172 +80,162 @@ void displayChainedList(struct chainedItem* chainedList)
         printf("Value of the current item :%i\n", currentElementFromList->currentValue);
 
         currentElementFromList = currentElementFromList->addressNextValue;
-    } while((NULL != currentElementFromList) && (headAddress != currentElementFromList));
+    } while(headAddress != currentElementFromList);
 }
 
-// Changer pour un pointeur de pointeur pour changer la valeur du premier
-// Debut d'essai dans pop_front_2
-void pop_front(struct chainedItem* chainedList)
+/// @brief Pop the first element of a circular chained list.
+/// @param chainedList List which the first element has to be deleted.
+/// @return Element popped.
+struct chainedItem* pop_front(struct chainedItem** chainedList)
 {
-    if (NULL == chainedList)
+    if (0 == getSizeChainedList(*chainedList))
     {
-        return ;
+        *chainedList = NULL;
+        return NULL;
     }
-    if (NULL == chainedList->addressNextValue)
+    if (1 == getSizeChainedList(*chainedList))
     {
-        chainedList = NULL;
-        return ;
+        *chainedList = NULL;
+        return *chainedList;
     }
 
-    const struct chainedItem* tailAddress = chainedList->addressPreviousValue->addressPreviousValue;
-    const struct chainedItem* headAddress = chainedList;
+    struct chainedItem* elementToReturn = *chainedList;
 
-    struct chainedItem* currentElementFromList = chainedList;
+    struct chainedItem* tailAddress = (*chainedList)->addressPreviousValue;
+    struct chainedItem* newHeadAddress = (*chainedList)->addressNextValue;
 
-    do
-    {
-        currentElementFromList->currentValue = currentElementFromList->addressNextValue->currentValue;
+    tailAddress->addressNextValue = newHeadAddress;
+    newHeadAddress->addressPreviousValue = tailAddress;
 
-        currentElementFromList = currentElementFromList->addressNextValue;
-    } while((NULL != currentElementFromList->addressNextValue) && (headAddress != currentElementFromList->addressNextValue));
+    *chainedList = newHeadAddress;
 
-    currentElementFromList->addressPreviousValue->addressNextValue = (struct chainedItem*) headAddress;
-    chainedList->addressPreviousValue = (struct chainedItem*) tailAddress;
-    free(currentElementFromList);
+    return elementToReturn;
 }
 
-void pop_front_2(struct chainedItem** chainedList)
+/// @brief Pop the last element of a circular chained list.
+/// @param chainedList List which the last element has to be deleted.
+/// @return Element popped.
+struct chainedItem* pop_back(struct chainedItem** chainedList)
 {
-    if (NULL == chainedList)
+    if (0 == getSizeChainedList(*chainedList))
     {
-        return ;
+        *chainedList = NULL;
+        return NULL;
     }
-    if (NULL == (*chainedList)->addressNextValue)
+    if (1 == getSizeChainedList(*chainedList))
     {
-        chainedList = NULL;
-        return ;
+        *chainedList = NULL;
+        return *chainedList;
     }
 
-    (*chainedList)->addressPreviousValue->addressNextValue = (*chainedList)->addressNextValue;
-    (*chainedList)->addressNextValue->addressPreviousValue = (*chainedList)->addressPreviousValue;
+    struct chainedItem* elementToReturn = (*chainedList)->addressPreviousValue;
+
+    struct chainedItem* newTailAddress = (*chainedList)->addressPreviousValue->addressPreviousValue;
+    struct chainedItem* headAddress = (*chainedList);
+
+    newTailAddress->addressNextValue = headAddress;
+    headAddress->addressPreviousValue = newTailAddress;
+
+    return elementToReturn;
 }
 
-//A Ameliorer car comme c'est criculaire, pas besoin de tour reboucler.
-void pop_back(struct chainedItem* chainedList)
-{
-    if (NULL == chainedList)
-    {
-        return ;
-    }
-    if (NULL == chainedList->addressNextValue)
-    {
-        chainedList = NULL;
-    }
-
-    const struct chainedItem* newTailAddress = chainedList->addressPreviousValue->addressPreviousValue;
-    const struct chainedItem* headAddress = chainedList;
-
-    struct chainedItem* currentElementFromList = chainedList;
-
-    do
-    {
-        currentElementFromList = currentElementFromList->addressNextValue;
-    } while((NULL != currentElementFromList->addressNextValue) && (headAddress != currentElementFromList->addressNextValue));
-
-    currentElementFromList->addressPreviousValue->addressNextValue = (struct chainedItem*) headAddress;
-    chainedList->addressPreviousValue = (struct chainedItem*) newTailAddress;
-    free(currentElementFromList);
-}
-
-//A Ameliorer car comme c'est criculaire, pas besoin de tour reboucler.
-void push_back(struct chainedItem* chainedList, int value)
+/// @brief Push a new element at the end of a circular chained list.
+/// @param chainedList Circular chained list of which a new element has to be added.
+/// @param value Value of the element to add to this circular chained list, in the last position. 
+void push_back(struct chainedItem** chainedList, int value)
 {
     struct chainedItem* newItem = createNewChainedItem(value);
-    if (NULL == chainedList)
-    {
-        chainedList = newItem;
-        return ;
-    }
-    if (NULL == chainedList->addressNextValue)
-    {
-        chainedList->addressNextValue = newItem;
-        chainedList->addressNextValue->addressPreviousValue = chainedList->addressNextValue;
-        return ;
-    }
 
-    const struct chainedItem* headAddress = chainedList;
-
-    struct chainedItem* currentElementFromList = chainedList;
-
-    do
-    {
-        currentElementFromList = currentElementFromList->addressNextValue;
-    } while((NULL != currentElementFromList->addressNextValue) && (headAddress != currentElementFromList->addressNextValue));
-
-    currentElementFromList->addressNextValue = newItem;
-
-    currentElementFromList->addressNextValue->addressPreviousValue = currentElementFromList;
-    currentElementFromList->addressNextValue->addressNextValue = (struct chainedItem*) headAddress;
-    chainedList->addressPreviousValue = newItem;
-}
-
-//A changer avec un pointeur de pointeur.
-void push_front(struct chainedItem* chainedList, int value)
-{
-    if (NULL == chainedList)
-    {
-        chainedList = createNewChainedItem(value);
-        return ;
-    }
-
-    int oldCurrentValue ;
-    int newValueToReplace = value;
-
-    const struct chainedItem* headAddress = chainedList;
-
-    struct chainedItem* currentElementFromList = chainedList;
-
-    do
-    {
-        oldCurrentValue = currentElementFromList->currentValue;
-        currentElementFromList->currentValue = newValueToReplace;
-        newValueToReplace = oldCurrentValue;
-        currentElementFromList = currentElementFromList->addressNextValue;
-    } while ((NULL != currentElementFromList->addressNextValue) && (headAddress != currentElementFromList->addressNextValue));
-
-    oldCurrentValue = currentElementFromList->currentValue;
-    currentElementFromList->currentValue = newValueToReplace;
-    currentElementFromList->addressNextValue = createNewChainedItem(oldCurrentValue);
-    currentElementFromList->addressNextValue->addressPreviousValue = currentElementFromList;
-
-    chainedList->addressPreviousValue = currentElementFromList->addressNextValue;
-    currentElementFromList->addressNextValue->addressNextValue = (struct chainedItem*) headAddress;
-}
-
-void concatenateTwoChainedLists(struct chainedItem* fistChainedList, struct chainedItem* secondChainedList)
-{
-    if (NULL == fistChainedList)
-    {
-        fistChainedList = secondChainedList;
-        return ;
-    }
-    if (NULL == secondChainedList)
-    {
-        return ;
-    }
+    int sizeOfChainedList = getSizeChainedList(*chainedList);
     
+    if (0 == sizeOfChainedList)
+    {
+        *chainedList = newItem;
+        return;
+    }
+    if (1 == sizeOfChainedList)
+    {
+        (*chainedList)->addressNextValue = newItem;
+        (*chainedList)->addressPreviousValue = newItem;
+        newItem->addressNextValue = (*chainedList);
+        newItem->addressPreviousValue = (*chainedList);
 
-    const struct chainedItem* headAddressFirstChainedList = fistChainedList;
-    const struct chainedItem* tailAddressFirstChainedList = fistChainedList->addressPreviousValue;
-    const struct chainedItem* headAddressSecondChainedList = secondChainedList;
-    const struct chainedItem* tailAddressSecondChainedList = secondChainedList->addressPreviousValue;
+        return;
+    }
+    struct chainedItem* oldTailAddress = (*chainedList)->addressPreviousValue;
+    struct chainedItem* headAddress = (*chainedList);
 
-    fistChainedList->addressPreviousValue->addressNextValue = (struct chainedItem*)headAddressSecondChainedList;
-    fistChainedList->addressPreviousValue = (struct chainedItem*)tailAddressSecondChainedList;
-    secondChainedList->addressPreviousValue->addressNextValue = (struct chainedItem*)headAddressFirstChainedList;
-    secondChainedList->addressPreviousValue = (struct chainedItem*)tailAddressFirstChainedList;
+    headAddress->addressPreviousValue = newItem;
+    oldTailAddress->addressNextValue = newItem;
+    newItem->addressNextValue = headAddress;
+    newItem->addressPreviousValue = oldTailAddress;
 }
 
+/// @brief Push a new element at the begining of a circular chained list.
+/// @param chainedList Circular chained list of which a new element has to be added.
+/// @param value Value of the element to add to this circular chained list, in the first position. 
+void push_front(struct chainedItem** chainedList, int value)
+{
+    struct chainedItem* newItem = createNewChainedItem(value);
+    
+    int sizeOfChainedList = getSizeChainedList(*chainedList);
+    
+    if (0 == sizeOfChainedList)
+    {
+        *chainedList = newItem;
+        return;
+    }
+    if (1 == sizeOfChainedList)
+    {
+        (*chainedList)->addressNextValue = newItem;
+        (*chainedList)->addressPreviousValue = newItem;
+        newItem->addressNextValue = (*chainedList);
+        newItem->addressPreviousValue = (*chainedList);
+
+        (*chainedList) = newItem;
+        return;
+    }
+
+    struct chainedItem* tailAddress = (*chainedList)->addressPreviousValue;
+    struct chainedItem* oldHeadAddress = (*chainedList);
+
+    oldHeadAddress->addressPreviousValue = newItem;
+    tailAddress->addressNextValue = newItem;
+    newItem->addressNextValue = oldHeadAddress;
+    newItem->addressPreviousValue = tailAddress;
+
+    (*chainedList) = newItem;
+}
+
+/// @brief Concatenate two circular chained list into the first one.
+/// @param fistChainedList First circular chained list, placed first for the output.
+/// @param secondChainedList Second circular chained list, placed second for the output.
+void concatenateTwoChainedLists(struct chainedItem** fistChainedList, struct chainedItem** secondChainedList)
+{
+    if (NULL == *fistChainedList)
+    {
+        *fistChainedList = *secondChainedList;
+        return ;
+    }
+    if (NULL == *secondChainedList)
+    {
+        return ;
+    }
+
+    const struct chainedItem* headAddressFirstChainedList = *fistChainedList;
+    const struct chainedItem* tailAddressFirstChainedList = (*fistChainedList)->addressPreviousValue;
+    const struct chainedItem* headAddressSecondChainedList = *secondChainedList;
+    const struct chainedItem* tailAddressSecondChainedList = (*secondChainedList)->addressPreviousValue;
+
+    (*fistChainedList)->addressPreviousValue->addressNextValue = (struct chainedItem*)headAddressSecondChainedList;
+    (*fistChainedList)->addressPreviousValue = (struct chainedItem*)tailAddressSecondChainedList;
+    (*secondChainedList)->addressPreviousValue->addressNextValue = (struct chainedItem*)headAddressFirstChainedList;
+    (*secondChainedList)->addressPreviousValue = (struct chainedItem*)tailAddressFirstChainedList;
+}
+
+/// @brief Apply a function to all elements of a circular chained list. This function is like a map.
+/// @param chainedList Circular chained list of elements to be modified.
+/// @param function_callback Function applied to every elements.
 void applyFunctionToAllElements(struct chainedItem* chainedList, int (*function_callback)(int))
 {
     if (NULL == chainedList)
@@ -259,7 +250,111 @@ void applyFunctionToAllElements(struct chainedItem* chainedList, int (*function_
     {
         currentElementFromList->currentValue = function_callback(currentElementFromList->currentValue);
         currentElementFromList = currentElementFromList->addressNextValue;
-    } while ((NULL != currentElementFromList) && (headAddress != currentElementFromList));
+    } while (headAddress != currentElementFromList);
+}
+
+/// @brief Bunch of tests of chained list to check that boundaries case work.
+void testOfChainedListsFunction()
+{
+    /**************************** Applying methods for case of 0-1 element in the chained list. ****************************/
+    /***************************************** Purpose: Testing if functions work. *****************************************/
+    struct chainedItem* testingLimitChainedList = createChainedListFirstIntegers(0);
+    int sizeOfLimitChainedList = getSizeChainedList(testingLimitChainedList);
+    assert(0 == sizeOfLimitChainedList);
+    assert(NULL == testingLimitChainedList);
+
+    (void)pop_front(&testingLimitChainedList);
+    sizeOfLimitChainedList = getSizeChainedList(testingLimitChainedList);
+    assert(0 == sizeOfLimitChainedList);
+    assert(NULL == testingLimitChainedList);
+
+    (void)pop_back(&testingLimitChainedList);
+    sizeOfLimitChainedList = getSizeChainedList(testingLimitChainedList);
+    assert(0 == sizeOfLimitChainedList);
+    assert(NULL == testingLimitChainedList);
+
+    push_front(&testingLimitChainedList, 4);
+    sizeOfLimitChainedList = getSizeChainedList(testingLimitChainedList);
+    assert(1 == sizeOfLimitChainedList);
+    assert(4 == testingLimitChainedList->currentValue);
+
+    (void)pop_front(&testingLimitChainedList);
+    sizeOfLimitChainedList = getSizeChainedList(testingLimitChainedList);
+    assert(0 == sizeOfLimitChainedList);
+    assert(NULL == testingLimitChainedList);
+
+    push_front(&testingLimitChainedList, 8);
+    sizeOfLimitChainedList = getSizeChainedList(testingLimitChainedList);
+    assert(1 == sizeOfLimitChainedList);
+    assert(8 == testingLimitChainedList->currentValue);
+
+    (void)pop_back(&testingLimitChainedList);
+    sizeOfLimitChainedList = getSizeChainedList(testingLimitChainedList);
+    assert(0 == sizeOfLimitChainedList);
+    assert(NULL == testingLimitChainedList);
+
+    push_back(&testingLimitChainedList, 16);
+    sizeOfLimitChainedList = getSizeChainedList(testingLimitChainedList);
+    assert(1 == sizeOfLimitChainedList);
+    assert(16 == testingLimitChainedList->currentValue);
+
+    (void)pop_front(&testingLimitChainedList);
+    sizeOfLimitChainedList = getSizeChainedList(testingLimitChainedList);
+    assert(0 == sizeOfLimitChainedList);
+    assert(NULL == testingLimitChainedList);
+
+    push_back(&testingLimitChainedList, 32);
+    sizeOfLimitChainedList = getSizeChainedList(testingLimitChainedList);
+    assert(1 == sizeOfLimitChainedList);
+    assert(32 == testingLimitChainedList->currentValue);
+
+    (void)pop_back(&testingLimitChainedList);
+    sizeOfLimitChainedList = getSizeChainedList(testingLimitChainedList);
+    assert(0 == sizeOfLimitChainedList);
+    assert(NULL == testingLimitChainedList);
+
+    /**************************** Applying methods for case of 1-2 element in the chained list. ****************************/
+    /***************************************** Purpose: Testing if functions work. *****************************************/
+    struct chainedItem* testingLimitChainedList_V2 = createChainedListFirstIntegers(1);
+    int sizeOfLimitChainedList_V2 = getSizeChainedList(testingLimitChainedList_V2);
+    assert(1 == sizeOfLimitChainedList_V2);
+    assert(0 == testingLimitChainedList_V2->currentValue);
+
+    push_front(&testingLimitChainedList_V2, 4);
+    sizeOfLimitChainedList_V2 = getSizeChainedList(testingLimitChainedList_V2);
+    assert(2 == sizeOfLimitChainedList_V2);
+    assert(4 == testingLimitChainedList_V2->currentValue);
+    assert(0 == testingLimitChainedList_V2->addressNextValue->currentValue);
+
+    (void)pop_back(&testingLimitChainedList_V2);
+    sizeOfLimitChainedList_V2 = getSizeChainedList(testingLimitChainedList_V2);
+    assert(1 == sizeOfLimitChainedList_V2);
+    assert(4 == testingLimitChainedList_V2->currentValue);
+
+    push_back(&testingLimitChainedList_V2, 8);
+    sizeOfLimitChainedList_V2 = getSizeChainedList(testingLimitChainedList_V2);
+    assert(2 == sizeOfLimitChainedList_V2);
+    assert(4 == testingLimitChainedList_V2->currentValue);
+    assert(8 == testingLimitChainedList_V2->addressNextValue->currentValue);
+
+    (void)pop_front(&testingLimitChainedList_V2);
+    sizeOfLimitChainedList_V2 = getSizeChainedList(testingLimitChainedList_V2);
+    assert(1 == sizeOfLimitChainedList_V2);
+    assert(8 == testingLimitChainedList_V2->currentValue);
+
+    /***************************** Testing concatenation to check if every case work properly. *****************************/
+    // Testing when the first one is NULL.
+    concatenateTwoChainedLists(&testingLimitChainedList, &testingLimitChainedList_V2);
+    int sizeOfConcatenated = getSizeChainedList(testingLimitChainedList);
+    assert(1 == sizeOfConcatenated);
+    assert(8 == testingLimitChainedList->currentValue);
+
+    // Testing when the second one is NULL.
+    testingLimitChainedList_V2 = createChainedListFirstIntegers(0);
+    concatenateTwoChainedLists(&testingLimitChainedList, &testingLimitChainedList_V2);
+    sizeOfConcatenated = getSizeChainedList(testingLimitChainedList);
+    assert(1 == sizeOfConcatenated);
+    assert(8 == testingLimitChainedList->currentValue);
 }
 
 int squareAValue(int inputValue)
