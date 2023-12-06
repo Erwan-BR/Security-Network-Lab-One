@@ -83,7 +83,6 @@ void pop_front(struct chainedItem* chainedList)
     {
         chainedList = NULL;
     }
-
     struct chainedItem* currentElementFromList = chainedList;
     do
     {
@@ -146,42 +145,66 @@ void push_back(struct chainedItem* chainedList, int value)
 
 void push_front(struct chainedItem* chainedList, int value)
 {
-    struct chainedItem* newItem = createNewChainedItem(value);
     if (NULL == chainedList)
     {
         chainedList = createNewChainedItem(value);
         return ;
     }
 
-    int oldCurrentValue = chainedList->currentValue;
-
-    /*if (NULL == chainedList->addressNextValue)
-    {*/
-        chainedList->currentValue = value;
-        chainedList->addressNextValue = createNewChainedItem(oldCurrentValue);
-        chainedList->addressNextValue->addressPreviousValue = chainedList->addressNextValue;
-        //return ;
-    //}
+    int oldCurrentValue ;
+    int newValueToReplace = value;
 
     struct chainedItem* currentElementFromList = chainedList;
 
     do
     {
-        chainedList->currentValue = value;
+        oldCurrentValue = currentElementFromList->currentValue;
+        currentElementFromList->currentValue = newValueToReplace;
+        newValueToReplace = oldCurrentValue;
         currentElementFromList = currentElementFromList->addressNextValue;
-    } while(NULL != currentElementFromList->addressNextValue);
+    } while (NULL != currentElementFromList->addressNextValue);
 
-    currentElementFromList->addressNextValue = newItem;
-
+    oldCurrentValue = currentElementFromList->currentValue;
+    currentElementFromList->currentValue = newValueToReplace;
+    currentElementFromList->addressNextValue = createNewChainedItem(oldCurrentValue);
     currentElementFromList->addressNextValue->addressPreviousValue = currentElementFromList;
 }
 
 void concatenateTwoChainedLists(struct chainedItem* fistChainedList, struct chainedItem* secondChainedList)
 {
-    return;
+    if (NULL == fistChainedList)
+    {
+        fistChainedList = secondChainedList;
+        return ;
+    }
+    struct chainedItem* currentElementFromList = fistChainedList;
+    while(NULL != currentElementFromList->addressNextValue)
+    {
+        currentElementFromList = currentElementFromList->addressNextValue;
+    }
+    currentElementFromList->addressNextValue = secondChainedList;
 }
 
-void applyFunctionToAllElements(struct chainedItem* fistChainedList, int (*function_callback)(int))
+void applyFunctionToAllElements(struct chainedItem* chainedList, int (*function_callback)(int))
 {
-    return;
+    if (NULL == chainedList)
+    {
+        return ;
+    }
+    struct chainedItem* currentElementFromList = chainedList;
+    do
+    {
+        currentElementFromList->currentValue = function_callback(currentElementFromList->currentValue);
+        currentElementFromList = currentElementFromList->addressNextValue;
+    } while (NULL != currentElementFromList);
+}
+
+int squareAValue(int inputValue)
+{
+    return inputValue*inputValue;
+}
+
+int doubleAValue(int inputValue)
+{
+    return 2*inputValue;
 }

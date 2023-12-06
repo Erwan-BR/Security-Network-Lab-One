@@ -18,7 +18,11 @@ void displayChainedList(struct chainedItem* chainedList);
 void pop_front(struct chainedItem* chainedList);
 void pop_back(struct chainedItem* chainedList);
 void push_back(struct chainedItem* chainedList, int value);
+void push_front(struct chainedItem* chainedList, int value);
 void concatenateTwoChainedLists(struct chainedItem* fistChainedList, struct chainedItem* secondChainedList);
-void applyFunctionToAllElements(struct chainedItem* fistChainedList, int (*function_callback)(int));
+void applyFunctionToAllElements(struct chainedItem* chainedList, int (*function_callback)(int));
+
+int squareAValue(int inputValue);
+int doubleAValue(int inputValue);
 
 #endif /* exo3_h */
