@@ -27,9 +27,9 @@ struct chainedItem* createChainedListFirstIntegers(int number)
         return NULL;
     }
     
-    struct chainedItem* headOfChainedList = createNewChainedItem(0);
+    struct chainedItem* headOfChainedList = NULL;
 
-    for (int value = 1; number > value; value++)
+    for (int value = 0; number > value; value++)
     {
         push_back(&headOfChainedList, value);
     }
@@ -88,12 +88,13 @@ void displayChainedList(struct chainedItem* chainedList)
 /// @return Element popped.
 struct chainedItem* pop_front(struct chainedItem** chainedList)
 {
-    if (0 == getSizeChainedList(*chainedList))
+    int sizeOfChainedList = getSizeChainedList(*chainedList);
+    if (0 == sizeOfChainedList)
     {
         *chainedList = NULL;
         return NULL;
     }
-    if (1 == getSizeChainedList(*chainedList))
+    if (1 == sizeOfChainedList)
     {
         *chainedList = NULL;
         return *chainedList;
@@ -117,12 +118,13 @@ struct chainedItem* pop_front(struct chainedItem** chainedList)
 /// @return Element popped.
 struct chainedItem* pop_back(struct chainedItem** chainedList)
 {
-    if (0 == getSizeChainedList(*chainedList))
+    int sizeOfChainedList = getSizeChainedList(*chainedList);
+    if (0 == sizeOfChainedList)
     {
         *chainedList = NULL;
         return NULL;
     }
-    if (1 == getSizeChainedList(*chainedList))
+    if (1 == sizeOfChainedList)
     {
         *chainedList = NULL;
         return *chainedList;
@@ -151,7 +153,7 @@ void push_back(struct chainedItem** chainedList, int value)
     if (0 == sizeOfChainedList)
     {
         *chainedList = newItem;
-        return;
+        return ;
     }
     if (1 == sizeOfChainedList)
     {
@@ -160,7 +162,7 @@ void push_back(struct chainedItem** chainedList, int value)
         newItem->addressNextValue = (*chainedList);
         newItem->addressPreviousValue = (*chainedList);
 
-        return;
+        return ;
     }
     struct chainedItem* oldTailAddress = (*chainedList)->addressPreviousValue;
     struct chainedItem* headAddress = (*chainedList);
@@ -183,7 +185,7 @@ void push_front(struct chainedItem** chainedList, int value)
     if (0 == sizeOfChainedList)
     {
         *chainedList = newItem;
-        return;
+        return ;
     }
     if (1 == sizeOfChainedList)
     {
@@ -193,7 +195,7 @@ void push_front(struct chainedItem** chainedList, int value)
         newItem->addressPreviousValue = (*chainedList);
 
         (*chainedList) = newItem;
-        return;
+        return ;
     }
 
     struct chainedItem* tailAddress = (*chainedList)->addressPreviousValue;

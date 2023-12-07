@@ -65,4 +65,6 @@ void mainQuestion3()
 
     // Calling the function that realizes a lot of tests of the functions for boudarie case (when size of chained list is 0 or 1)
     testOfChainedListsFunction();
+    printf("A bunch of test has been executed. See code to read more about those tests.");
+    printf("-------------------------------\n");
 }
