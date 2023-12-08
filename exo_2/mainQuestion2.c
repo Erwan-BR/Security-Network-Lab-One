@@ -50,6 +50,11 @@ void mainQuestion2()
     {
         perror("ERROR on fsync");
     }
+    int closedFile = close(openFile);
+    if (-1 == closedFile)
+    {
+        perror("ERROR on close");
+    }
 
     printf("The file has been unmapped and synchronization forced.\n");
 }
