@@ -17,6 +17,14 @@ struct chainedItem* createNewChainedItem(int data)
     return newChainedItem;
 }
 
+/// @brief Make a chainedItem point to itself (make it alone, as for a circular chained list with only one element)
+/// @param element Element to make it point to itself.
+void cleanChainedItemPointers(struct chainedItem* element)
+{
+    element->addressNextValue = element;
+    element->addressPreviousValue = element;
+}
+
 /// @brief Create a circular chained List of numbers from 0 to number-1.
 /// @param number Number of element in the chained list. If number <=0, the output is NULL.
 /// @return Created chainedItem.
@@ -94,13 +102,14 @@ struct chainedItem* pop_front(struct chainedItem** chainedList)
         *chainedList = NULL;
         return NULL;
     }
+
+    struct chainedItem* elementToReturn = *chainedList;
+
     if (1 == sizeOfChainedList)
     {
         *chainedList = NULL;
-        return *chainedList;
+        return elementToReturn;
     }
-
-    struct chainedItem* elementToReturn = *chainedList;
 
     struct chainedItem* tailAddress = (*chainedList)->addressPreviousValue;
     struct chainedItem* newHeadAddress = (*chainedList)->addressNextValue;
@@ -110,6 +119,7 @@ struct chainedItem* pop_front(struct chainedItem** chainedList)
 
     *chainedList = newHeadAddress;
 
+    cleanChainedItemPointers(elementToReturn);
     return elementToReturn;
 }
 
@@ -124,13 +134,14 @@ struct chainedItem* pop_back(struct chainedItem** chainedList)
         *chainedList = NULL;
         return NULL;
     }
+
+    struct chainedItem* elementToReturn = (*chainedList)->addressPreviousValue;
+
     if (1 == sizeOfChainedList)
     {
         *chainedList = NULL;
-        return *chainedList;
+        return elementToReturn;
     }
-
-    struct chainedItem* elementToReturn = (*chainedList)->addressPreviousValue;
 
     struct chainedItem* newTailAddress = (*chainedList)->addressPreviousValue->addressPreviousValue;
     struct chainedItem* headAddress = (*chainedList);
@@ -138,6 +149,7 @@ struct chainedItem* pop_back(struct chainedItem** chainedList)
     newTailAddress->addressNextValue = headAddress;
     headAddress->addressPreviousValue = newTailAddress;
 
+    cleanChainedItemPointers(elementToReturn);
     return elementToReturn;
 }
 

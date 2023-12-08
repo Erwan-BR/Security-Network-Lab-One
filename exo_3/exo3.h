@@ -14,6 +14,8 @@ struct chainedItem
 
 struct chainedItem* createNewChainedItem(int data);
 struct chainedItem* createChainedListFirstIntegers(int number);
+void cleanChainedItemPointers(struct chainedItem* element);
+
 int getSizeChainedList(struct chainedItem* chainedList);
 void displayChainedList(struct chainedItem* chainedList);
 
