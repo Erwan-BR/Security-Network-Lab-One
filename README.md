@@ -4,7 +4,7 @@
 
 This repository contains the resolution of a security lab done in binomial with [Adrien MILLASSEAU](https://github.com/AMillasseau).
 
-The subject is available [here](resources/Lab_Subject.pdf).
+The subject is available [here](resources/Lab_Subject_FR.pdf).
 
 To obtain an equivalent of the subject in English, please refer to issues #1 to #3 (which may have been closed).
 
